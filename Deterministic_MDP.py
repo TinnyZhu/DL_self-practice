@@ -45,55 +45,27 @@ class Motion:
 
 
 
-
-
-
-def step_value(start_row,start_column,action,discount):
-	vv=[]
-	for action in a:
-    if action=='w':
-        row=start_row-1
-        column=start_column
-        if row<0:
-            rewards=-10
-            row=start_row
-        elif row==4 and column==5:
-        	rewards=100
-        else:
-            rewards=0
-        vv.append(rewards+discount*value[row][column])
-    elif action=='s':
-        row=start_row+1
-        column=start_column
-        if row>=8:
-            rewards=-10
-            row=start_row
-        elif row==4 and column==5:
-        	rewards=100
-        else:
-            rewards=0
-        vv.append(rewards+discount*value[row][column])
-    elif action=='a':
-        column=start_column-1
-        row=start_row
-        if column<0:
-            rewards=-10
-            column=start_column
-        elif row==4 and column==5:
-        	rewards=100
-        else:
-            rewards=0
-        vv.append(rewards+discount*value[row][column])
-    elif action=='d':
-        column=start_column+1
-        row=start_row
-        if column>=10:
-            rewards=-10
-            row=start_row
-        elif row==4 and column==5:
-        	rewards=100
-        else:
-            rewards=0
-        vv.append(rewards+discount*value[row][column])
-    value[start_row][start_column]=np.max(vv)
-return value, row, column
+def step_optimization(start_row,start_column,value_map,discount,dp):
+    
+    udp=(1-dp)/3
+    
+    Step_motion=Motion(start_row,start_column,value_map,discount)
+    upvalue=Step_motion.up_value()
+    downvalue=Step_motion.down_value()
+    leftvalue=Step_motion.left_value()
+    rightvalue=Step_motion.right_value()
+    
+    policy_value={'up':upvalue,'down':downvalue,'left':leftvalue,'right':rightvalue}
+    action_value={}
+    
+    for a in policy_value.keys():
+        d_value=0
+        for b in policy_value.keys():
+            if b==a:
+                d_value=d_value+dp*policy_value[b]
+            else:
+                d_value=d_value+udp*policy_value[b]
+        action_value.update({a:d_value})
+    
+    opt_action=max(action_value)
+    return action_value
