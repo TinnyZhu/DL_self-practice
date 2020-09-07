@@ -8,8 +8,8 @@ class Motion:
 		self.max_row=self.value.shape[0]
 		self.max_column=self.value.shape[1]
 		self.discount=discount
-		keys=['a','s','d','w']
-		self.rewards=dict.fromkeys(keys,0)
+		self.keys=['a','s','d','w']
+		self.rewards=dict.fromkeys(self.keys,0)
 		
 	def up_value(self,):
 		self.row-=1
@@ -55,6 +55,23 @@ class Motion:
 		self.new_input={'row':self.start_row,'column':self.start_column}
 		return self.rightvalue,self.new_input
 
+
+def value_map(start_row,start_column,initial_value,discount,dp,iteration):
+    k=0
+    while k<iteration:
+        step_value,step_policy=step_optimization(start_row,start_column,initial_value,discount,dp)
+        max_value=max(step_value.values())
+        initial_value[start_row][start_column]=max_value
+        opt_action={}
+        for key in step_value.keys():
+            if step_value.get(key)==max_value:
+                start=step_policy.get(key)
+                break
+        start_row=start['row']
+        start_column=start['column']
+        k+=1
+    value=initial_value
+    return value
 
 
 def step_optimization(start_row,start_column,value_map,discount,dp):
