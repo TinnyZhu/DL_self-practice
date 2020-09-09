@@ -1,3 +1,5 @@
+import numpy as np
+
 class Motion:
 	def __init__(self,start_row,start_column,value,discount):
 		self.start_row=start_row
@@ -10,6 +12,7 @@ class Motion:
 		self.discount=discount
 		self.keys=['a','s','d','w']
 		self.rewards=dict.fromkeys(self.keys,0)
+
 		
 	def up_value(self,):
 		self.row-=1
@@ -56,48 +59,72 @@ class Motion:
 		return self.rightvalue,self.new_input
 
 
-def value_map(start_row,start_column,initial_value,discount,dp,iteration):
-    k=0
-    while k<iteration:
-        step_value,step_policy=step_optimization(start_row,start_column,initial_value,discount,dp)
-        max_value=max(step_value.values())
-        initial_value[start_row][start_column]=max_value
-        opt_action={}
-        for key in step_value.keys():
-            if step_value.get(key)==max_value:
-                start=step_policy.get(key)
-                break
-        start_row=start['row']
-        start_column=start['column']
-        k+=1
-    value=initial_value
-    return value
 
 
-def step_optimization(start_row,start_column,value_map,discount,dp):
-    
-    udp=(1-dp)/3
-    
-    Step_motion=Motion(start_row,start_column,value_map,discount)
-    upvalue=Step_motion.up_value()
-    Step_motion=Motion(start_row,start_column,value_map,discount)
-    downvalue=Step_motion.down_value()
-    Step_motion=Motion(start_row,start_column,value_map,discount)
-    leftvalue=Step_motion.left_value()
-    Step_motion=Motion(start_row,start_column,value_map,discount)
-    rightvalue=Step_motion.right_value()
-    
-    policy_value={'up':upvalue,'down':downvalue,'left':leftvalue,'right':rightvalue}
-    action_value={}
-    
-    for a in policy_value.keys():
-        d_value=0
-        for b in policy_value.keys():
-            if b==a:
-                d_value=d_value+dp*policy_value[b]
-            else:
-                d_value=d_value+udp*policy_value[b]
-        action_value.update({a:d_value})
-    
-    opt_action=max(action_value)
-    return action_value
+class Get_value:
+	def __init__(self,start_row,start_column,initial_value,initial_policy,discount,dp):
+		self.initial_value=initial_value
+		self.initial_policy=initial_policy
+		self.discount=discount
+		self.dp=dp
+		self.udp=(1-self.dp)/3
+		self.value_shape=self.initial_value.shape
+		self.max_row=self.value_shape[0]
+		self.max_column=self.value_shape[1]
+		self.start_row=start_row
+		self.start_column=start_column
+
+		if self.start_row>self.max_row-1:
+			raise ValueError('Not so many rows')
+
+		if self.start_column>self.max_column-1:
+			raise ValueError('Not so many columns')
+
+	def value_map(self,iteration):
+		k=0
+		while k<iteration:
+			step_value,step_policy=self.step_optimization()
+			max_value=max(step_value.values())
+			self.initial_value[self.start_row][self.start_column]=max_value
+			for key in step_value.keys():
+				if step_value.get(key)==max_value:
+					start=step_policy.get(key)
+					self.initial_policy[self.start_row][self.start_column]=key
+					break
+			self.start_row=start['row']
+			self.start_column=start['column']
+			k+=1
+		self.value=self.initial_value
+		self.policy=self.initial_policy
+		return self.value,self.policy
+
+
+
+	def step_optimization(self,):
+
+		Step_motion=Motion(self.start_row,self.start_column,self.initial_value,self.discount)
+		upvalue,upnew=Step_motion.up_value()
+
+		Step_motion=Motion(self.start_row,self.start_column,self.initial_value,self.discount)
+		downvalue,downnew=Step_motion.down_value()
+
+		Step_motion=Motion(self.start_row,self.start_column,self.initial_value,self.discount)
+		leftvalue,leftnew=Step_motion.left_value()
+
+		Step_motion=Motion(self.start_row,self.start_column,self.initial_value,self.discount)
+		rightvalue,rightnew=Step_motion.right_value()
+
+		policy_value={'up':upvalue,'down':downvalue,'left':leftvalue,'right':rightvalue}
+		self.policy_new_input={'up':upnew,'down':downnew,'left':leftnew,'right':rightnew}
+		self.action_value={}
+
+		for a in policy_value.keys():
+			d_value=0
+			for b in policy_value.keys():
+				if b==a:
+					d_value=d_value+self.dp*policy_value[b]
+				else:
+					d_value=d_value+self.udp*policy_value[b]
+			self.action_value.update({a:d_value})
+
+		return self.action_value,self.policy_new_input
