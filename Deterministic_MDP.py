@@ -87,18 +87,62 @@ class Get_value:
 		for f_row in range(self.max_row):
 			for f_column in range(self.max_column):
 				potential_action_value={}
-				if f_row>0 and f_column>0 and f_row<(self.max_row-1) and f_column<(self.max_column-1):
-					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column+1]}
-				elif f_row==0 and f_column>0 and f_row<(self.max_row-1) and f_column<(self.max_column-1):
-					potential_action_value={'up':self.value[f_row][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column+1]}
-				elif f_row>0 and f_column==0 and f_row<(self.max_row-1) and f_column<(self.max_column-1):
-					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column],'right':self.value[f_row][f_column+1]}
-				elif f_row>0 and f_column>0 and f_row==(self.max_row-1) and f_column<(self.max_column-1):
-					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column+1]}
-				elif f_row>0 and f_column>0 and f_row<(self.max_row-1) and f_column==(self.max_column-1):
-					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column]}
-				
-				self.policy[f_row][f_column]=potential_action_value
+				if f_row==0:
+					if f_column==0:
+						up={'up':self.value[f_row][f_column]}
+						down={'down':self.value[f_row+1][f_column]}
+						left={'left':self.value[f_row][f_column]}
+						right={'right':self.value[f_row][f_column+1]}
+					elif f_column==self.max_column-1:
+						up={'up':self.value[f_row][f_column]}
+						down={'down':self.value[f_row+1][f_column]}
+						left={'left':self.value[f_row][f_column-1]}
+						right={'right':self.value[f_row][f_column]}
+					else:
+						up={'up':self.value[f_row][f_column]}
+						down={'down':self.value[f_row+1][f_column]}
+						left={'left':self.value[f_row][f_column-1]}
+						right={'right':self.value[f_row][f_column+1]}
+				elif f_row==self.max_row-1:
+					if f_column<=0:
+						up={'up':self.value[f_row-1][f_column]}
+						down={'down':self.value[f_row][f_column]}
+						left={'left':self.value[f_row][f_column]}
+						right={'right':self.value[f_row][f_column+1]}
+					elif f_column>=self.max_column-1:
+						up={'up':self.value[f_row-1][f_column]}
+						down={'down':self.value[f_row][f_column]}
+						left={'left':self.value[f_row][f_column-1]}
+						right={'right':self.value[f_row][f_column]}
+					else:
+						up={'up':self.value[f_row-1][f_column]}
+						down={'down':self.value[f_row][f_column]}
+						left={'left':self.value[f_row][f_column-1]}
+						right={'right':self.value[f_row][f_column+1]}
+				else:
+					if f_column==0:
+						up={'up':self.value[f_row-1][f_column]}
+						down={'down':self.value[f_row+1][f_column]}
+						left={'left':self.value[f_row][f_column]}
+						right={'right':self.value[f_row][f_column+1]}
+					elif f_column>=self.max_column-1:
+						up={'up':self.value[f_row-1][f_column]}
+						down={'down':self.value[f_row+1][f_column]}
+						left={'left':self.value[f_row][f_column-1]}
+						right={'right':self.value[f_row][f_column]}
+					else:
+						up={'up':self.value[f_row-1][f_column]}
+						down={'down':self.value[f_row+1][f_column]}
+						left={'left':self.value[f_row][f_column-1]}
+						right={'right':self.value[f_row][f_column+1]}
+				potential_action_value.update(up)
+				potential_action_value.update(down)
+				potential_action_value.update(left)
+				potential_action_value.update(right)
+				mmax=max(potential_action_value.values())
+				for key in potential_action_value.keys():
+					if potential_action_value.get(key)==mmax:
+						self.policy[f_row][f_column]=key
 		return self.policy
 
 
