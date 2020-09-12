@@ -165,9 +165,9 @@ class Get_value:
 		self.value=self.initial_value
 		self.policy=self.initial_policy
 
-		#self.final_policy=self.Final_map(self.policy)
+		self.final_policy=self.Final_map()
 
-		return self.value,self.policy
+		return self.value,self.final_policy
 
 
 	def step_optimization(self,):
