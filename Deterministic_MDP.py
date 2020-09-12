@@ -62,7 +62,7 @@ class Motion:
 
 
 class Get_value:
-	def __init__(self,start_row,start_column,initial_value,initial_policy,discount,dp):
+	def __init__(self,initial_value,initial_policy,discount,dp):
 		self.initial_value=initial_value
 		self.initial_policy=initial_policy
 		self.discount=discount
@@ -71,14 +71,38 @@ class Get_value:
 		self.value_shape=self.initial_value.shape
 		self.max_row=self.value_shape[0]
 		self.max_column=self.value_shape[1]
-		self.start_row=start_row
-		self.start_column=start_column
+		self.start_row=np.random.random_integers(0,self.max_row-1)
+		self.start_column=np.random.random_integers(0,self.max_column-1)
 
 		if self.start_row>self.max_row-1:
 			raise ValueError('Not so many rows')
 
 		if self.start_column>self.max_column-1:
 			raise ValueError('Not so many columns')
+
+
+
+
+	def Final_map(self,):
+		for f_row in range(self.max_row):
+			for f_column in range(self.max_column):
+				potential_action_value={}
+				if f_row>0 and f_column>0 and f_row<(self.max_row-1) and f_column<(self.max_column-1):
+					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column+1]}
+				elif f_row==0 and f_column>0 and f_row<(self.max_row-1) and f_column<(self.max_column-1):
+					potential_action_value={'up':self.value[f_row][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column+1]}
+				elif f_row>0 and f_column==0 and f_row<(self.max_row-1) and f_column<(self.max_column-1):
+					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column],'right':self.value[f_row][f_column+1]}
+				elif f_row>0 and f_column>0 and f_row==(self.max_row-1) and f_column<(self.max_column-1):
+					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column+1]}
+				elif f_row>0 and f_column>0 and f_row<(self.max_row-1) and f_column==(self.max_column-1):
+					potential_action_value={'up':self.value[f_row-1][f_column],'down':self.value[f_row+1][f_column],'left':self.value[f_row][f_column-1],'right':self.value[f_row][f_column]}
+				
+				self.policy[f_row][f_column]=potential_action_value
+		return self.policy
+
+
+
 
 	def value_map(self,iteration):
 		k=0
@@ -96,8 +120,10 @@ class Get_value:
 			k+=1
 		self.value=self.initial_value
 		self.policy=self.initial_policy
-		return self.value,self.policy
 
+		#self.final_policy=self.Final_map(self.policy)
+
+		return self.value,self.policy
 
 
 	def step_optimization(self,):
